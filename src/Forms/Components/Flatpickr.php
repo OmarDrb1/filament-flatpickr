@@ -207,6 +207,7 @@ class Flatpickr extends Field implements Contracts\CanBeLengthConstrained, Contr
             'monthSelectorType' => $this->monthSelectorType->value,
             'animate' => $this->animate,
             'closeOnSelect' => $this->closeOnSelect,
+            'rangeSeparator' => $this->getRangeSeparator(),
         ];
         if ($this->getEnabledDates()) {
             $config['enabled'] = $this->getEnabledDates();
@@ -263,23 +264,31 @@ class Flatpickr extends Field implements Contracts\CanBeLengthConstrained, Contr
     public static function dehydratePickerState($component, $state)
     {
         if (blank($state)) {
-            return null;
-        }
-        if (! $state instanceof CarbonInterface) {
-            if ($component->isRangePicker() || $component->getMode() === FlatpickrMode::RANGE) {
-                $range = \Str::of($state)->explode(' to ');
-                $state = collect($range)->map(fn ($date) => Carbon::parse($date)
-                    ->setTimezone(config('app.timezone'))->format($component->getDateFormat()))
-                    ->toArray();
-            } elseif ($component->isMultiplePicker()) {
-                $range = \Str::of($state)->explode($component->getConjunction());
-                $state = collect($range)->map(fn ($date) => Carbon::parse($date)
-                    ->setTimezone(config('app.timezone'))->format($component->getDateFormat()))
-                    ->toArray();
-            }
-        }
-
-        return $state;
+           return null;
+       }
+       
+       if (! $state instanceof CarbonInterface) {
+           if ($component->isRangePicker() || $component->getMode() === FlatpickrMode::RANGE) {
+               // Get the separator
+               $separator = ' to '; // Default fallback
+               
+               if (method_exists($component, 'getRangeSeparator')) {
+                   $separator = $component->getRangeSeparator();
+               }
+               
+               $range = \Str::of($state)->explode($separator);
+               $state = collect($range)->map(fn ($date) => Carbon::parse($date)
+                   ->setTimezone(config('app.timezone'))->format($component->getDateFormat()))
+                   ->toArray();
+           } elseif ($component->isMultiplePicker()) {
+               $range = \Str::of($state)->explode($component->getConjunction());
+               $state = collect($range)->map(fn ($date) => Carbon::parse($date)
+                   ->setTimezone(config('app.timezone'))->format($component->getDateFormat()))
+                   ->toArray();
+           }
+       }
+   
+       return $state;
     }
 
     public function mode(FlatpickrMode $mode): static
