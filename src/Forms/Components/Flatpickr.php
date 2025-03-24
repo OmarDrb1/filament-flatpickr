@@ -120,6 +120,8 @@ class Flatpickr extends Field implements Contracts\CanBeLengthConstrained, Contr
 
     protected bool $closeOnSelect = true;
 
+    protected ?string $rangeSeparator = ' to ';
+
     public function getConfig(): array
     {
         if ($this->isRangePicker()) {
@@ -825,6 +827,12 @@ class Flatpickr extends Field implements Contracts\CanBeLengthConstrained, Contr
         return asset('css/'.static::PACKAGE_NAME.'/flatpickr-light-theme.css');
     }
 
+    public function rangeSeparator(?string $separator): static
+    {
+        $this->rangeSeparator = $separator;
+        return $this;
+    }
+    
     protected function getRangeSeparator(): string
     {
         // If a custom rangeSeparator is set in config, use that
