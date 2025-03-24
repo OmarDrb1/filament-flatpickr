@@ -824,4 +824,20 @@ class Flatpickr extends Field implements Contracts\CanBeLengthConstrained, Contr
     {
         return asset('css/'.static::PACKAGE_NAME.'/flatpickr-light-theme.css');
     }
+
+    protected function getRangeSeparator(): string
+    {
+        // If a custom rangeSeparator is set in config, use that
+        if (isset($this->config['rangeSeparator'])) {
+            return $this->config['rangeSeparator'];
+        }
+    
+        // Otherwise, use locale-based separators
+        return match (app()->getLocale()) {
+            'ar' => ' إلى ',
+            'tr' => ' - ',
+            // Add more locales as needed
+            default => ' to ',
+        };
+    }
 }
