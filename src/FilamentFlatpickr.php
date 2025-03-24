@@ -20,20 +20,18 @@ class FilamentFlatpickr
         }
         if (! $state instanceof CarbonInterface) {
             if ($component->isRangePicker() || $component->getMode() === FlatpickrMode::RANGE) {
-                // Use the configurable separator instead of hardcoded ' to '
-                $separator = $component->getRangeSeparator();
-                $range = \Str::of($state)->explode($separator);
+                $range = \Str::of($state)->explode(' to ');
                 $state = collect($range)->map(fn ($date) => Carbon::parse($date)
                     ->setTimezone(config('app.timezone'))->format($component->getDateFormat()))
                     ->toArray();
             } elseif ($component->isMultiplePicker()) {
-                $range = \Str::of($state)->explode($component->getConjunction());
+                $range = \Str::of($state)->explode(',');
                 $state = collect($range)->map(fn ($date) => Carbon::parse($date)
                     ->setTimezone(config('app.timezone'))->format($component->getDateFormat()))
                     ->toArray();
             }
         }
-    
+
         return $state;
     }
 }
